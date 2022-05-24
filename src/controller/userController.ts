@@ -93,6 +93,45 @@ class userController {
       }
     );
   }
+
+  public async AllUsers(req:Request, res:Response):Promise<void>{
+    const { id } = req.params;
+    connection.query(
+      "SELECT * FROM `service`",
+      [id],
+      function (err:any, results:any) {
+        if (err) {
+          res.status(400).json({ message: err.message });
+        } else {
+          if (results.length === 0) {
+            res.status(400).json({ message: "Nehum usuário encontrado!" });
+          } else {
+            res.status(200).json({ data: results });
+          }
+        }
+      }
+    );
+  }
+
+  public async addList(req:Request, res:Response):Promise<void>{
+    const { nome , status} =
+      req.body;
+    if (!nome && !status) {
+      res.status(400).json({ message: "Campos Vazios" });
+    } else {
+      connection.query(
+        `INSERT INTO service (nome,status)
+        values('${nome}','${status}')`,
+        (err:any) => {
+          if (err) {
+            res.status(400).json({ message: err.message });
+          } else {
+            res.status(200).json({ message: "Usuário Registrado com Sucesso" });
+          }
+        }
+      );
+    }
+  }
 }
 
 export default new userController();
