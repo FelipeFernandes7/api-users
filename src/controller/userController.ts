@@ -12,6 +12,7 @@ class userController {
       res.status(400).json({ message: "Erro ao criar o usuário" });
     }
   }
+
   public async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
 
@@ -38,6 +39,7 @@ class userController {
       res.status(400).json({ message: "Erro ao deletar o registro" });
     }
   }
+  
   public async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {

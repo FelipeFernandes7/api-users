@@ -37,6 +37,7 @@ class serviceController {
       res.status(400).json({ message: err });
     }
   }
+  
   public async updateService(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     const { name, status } = req.body;
