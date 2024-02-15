@@ -1,6 +1,7 @@
 import Router from "express";
 import userController from "./controller/userController";
 import serviceController from "./controller/serviceController";
+
 const router = Router();
 router.get("/user/:id", userController.getById);
 router.put("/update/:id", userController.update);
