@@ -1,99 +1,54 @@
 import { Request, Response } from "express";
-import { ResultSetHeader } from "mysql2";
-import connection from "../database";
+import knex from "knex";
 
 class userController {
   public async create(req: Request, res: Response): Promise<void> {
-    const { nome_emp, cargo, comissao, status, salario, dt_nascimento } =
-      req.body;
-    if (
-      !nome_emp ||
-      !cargo ||
-      !comissao ||
-      !status ||
-      !salario ||
-      !dt_nascimento
-    ) {
-      res.status(400).json({ message: "Campos Vazios" });
-    } else {
-      connection.query(
-        `INSERT INTO tb_empregado (nome_emp, cargo,dt_nascimento, salario,comissao,status)
-        values('${nome_emp}', '${cargo}','${dt_nascimento}', '${salario}','${comissao}','${status}')`,
-        (err: any) => {
-          if (err) {
-            res.status(400).json({ message: err.message });
-          } else {
-            res.status(200).json({ message: "Usuário Registrado com Sucesso" });
-          }
-        }
-      );
+    try {
+      if (req.body) {
+        await knex("users").insert(req.body);
+        res.status(200).json({ message: "Usuário Criado com sucesso!" });
+      }
+    } catch (err) {
+      res.status(400).json({ message: "Erro ao criar o usuário" });
     }
   }
   public async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
-    const datas = {
-      nome_emp: req.body.nome_emp,
-      cargo: req.body.cargo,
-      salario: req.body.salario,
-    };
 
-    if (!id || !datas.nome_emp || !datas.cargo || !datas.salario) {
-      res.status(400).json({ message: "Os campos estão vazios" });
-    } else {
-      connection.query(
-        "UPDATE tb_empregado SET ? WHERE id = ?",
-        [datas, id],
-        (err: any, results: ResultSetHeader) => {
-          if (err) {
-            res.status(400).json({ message: err.message });
-          } else {
-            res
-              .status(200)
-              .json({ message: "Empregado Atualizado com Sucesso!" });
-          }
-        }
-      );
+    try {
+      if (id && req.body) {
+        await knex("users").update(req.body);
+        res.status(200).json({ message: "Registro Atualizado com Sucesso!" });
+      }
+    } catch (err) {
+      res.status(400).json({ message: "Erro ao atualizar o registro" });
+      console.log(err);
     }
   }
 
   public async remove(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
-
-    if (!id) {
-      res
-        .status(400)
-        .json({ message: "Necessário informar o id para excluir o usuário" });
-    } else {
-      connection.query(
-        " DELETE FROM tb_empregado WHERE id = ? ",
-        [Number(id)],
-        (err: any) => {
-          if (err) {
-            res.status(400).json({ message: err.message });
-          } else {
-            res.status(200).json({ message: "Usuário deletado com Sucesso" });
-          }
-        }
-      );
+    try {
+      if (id) {
+        await knex("users").del(["id"]).where({ id });
+        res.status(200).json({ message: "Registro deletado com Sucesso!" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({ message: "Erro ao deletar o registro" });
     }
   }
-  public async users(req: Request, res: Response): Promise<void> {
+  public async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
-    connection.query(
-      "SELECT * FROM `tb_empregado` WHERE id = ? ",
-      [id],
-      function (err: any, results: any) {
-        if (err) {
-          res.status(400).json({ message: err.message });
-        } else {
-          if (results.length === 0) {
-            res.status(400).json({ message: "Nehum usuário encontrado!" });
-          } else {
-            res.status(200).json({ data: results });
-          }
-        }
+    try {
+      if (id) {
+        await knex("users").select("*").where({ id });
+        res.status(200).json({ message: `Resultados para o Usuário ${id}` });
       }
-    );
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({ message: "Erro ao buscar o registro" });
+    }
   }
 }
 
